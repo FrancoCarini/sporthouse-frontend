@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Header from './Header'
 import Footer from './Footer'
+import { Container } from 'react-bootstrap'
 
 export default function Layout({title, keywords, description, children}) {
   return (
@@ -12,7 +13,11 @@ export default function Layout({title, keywords, description, children}) {
       </Head>
       <Header />
       <div>
-        {children}
+        <main className='py-3'>
+          <Container>
+            {children}
+          </Container>
+        </main>
       </div>
       <Footer />
     </div>
