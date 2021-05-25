@@ -2,7 +2,7 @@ import { API_URL } from '@/config/index'
 import { useState, useContext } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import CartContext from '@/context/CartContext'
+import { CartContext } from '@/context/CartContext'
 import Layout from '@/components/Layout'
 import Rating from '@/components/Rating'
 import { Row, Col, Image, ListGroup, Card, Button, Form } from 'react-bootstrap'
@@ -24,6 +24,7 @@ export default function SingleProductPage({ product }) {
   const [stock, setStock] = useState([])
   const [stockSelectDisabled, setStockSelectDisabled] = useState(true)
   const [stockSelectedValue, setStockSelectedValue] = useState(-1)
+  const [totalStock, setTotalStock] = useState(null)
 
   const selectSize = e => {
     if (Number(e.target.value) === -1) {
@@ -54,6 +55,7 @@ export default function SingleProductPage({ product }) {
       setStockSelectDisabled(false)
       const colorStock = colors.find(color => e.target.value === color.color)
       const stockAux = []
+      setTotalStock(colorStock.stock)
       for (let i = 1; i <= colorStock.stock; i++ ) {
         stockAux.push(i)
       }
@@ -81,7 +83,7 @@ export default function SingleProductPage({ product }) {
       image: product.image,
       slug: product.slug,
       name: product.name,
-      stock: product.stock
+      stock: totalStock
     })
     router.push('/cart')
   }

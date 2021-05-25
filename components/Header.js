@@ -17,14 +17,13 @@ export default function Header() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ml-auto">
-            <Link href='/events' passHref>
+            <Link href='/cart' passHref>
               <Nav.Link><FaShoppingCart /> Cart</Nav.Link>
             </Link>
             {user ? (
               <NavDropdown title={user.name} id='username'>
-                <Link href='/account/profile'>
-                  <NavDropdown.Item>Profile</NavDropdown.Item>
-                </Link>
+                <NavDropdown.Item><Link href='/account/profile'><a>Profile</a></Link></NavDropdown.Item>
+                <NavDropdown.Item><Link href='/order'><a>My Orders</a></Link></NavDropdown.Item>
                 <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>
               </NavDropdown>
             ) : ( 

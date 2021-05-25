@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { Card } from 'react-bootstrap'
 import Rating from './Rating'
-import { CLOUDINARY_ROOT, CLOUDINARY_PRODUCTS } from '@/config/index'
 
 export default function Product({ product }) {
   return (
@@ -10,8 +9,10 @@ export default function Product({ product }) {
         <Card.Img src={product.image} variant='top' />
       </Link>
       <Card.Body>
-        <Link href={`/product/${product._id}`}>
-          <Card.Title as='div'><strong>{product.brand.name} - {product.name}</strong></Card.Title>
+        <Link href={`/products/${product.slug}`}>
+          <a>
+            <Card.Title as='div'><strong>{product.brand.name} - {product.name}</strong></Card.Title>
+          </a>
         </Link>
         <Card.Text as='div'>
           <Rating 

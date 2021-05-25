@@ -1,17 +1,27 @@
+import { useContext } from 'react'
+import Layout from '@/components/Layout'
 import Link from 'next/link'
-import CartContext from '@/context/CartContext'
-import Message from '../components/Message'
+import { CartContext } from '@/context/CartContext'
+import Message from '../../components/Message'
+import { useRouter } from 'next/router'
 import { Row, Col, ListGroup, Image, Form, Button, Card, ListGroupItem } from 'react-bootstrap'
 
 
 export default function CartPage() {
   const { cart, addToCart } = useContext(CartContext)
+  const router = useRouter()
+  
+  const checkoutHandler = () => {
+    router.push('/cart/store')
+  }
 
-  const selectQuantity = e => {
-    console.log('Cambio')
+  const selectQuantityHandler = (quantity, product) => {
+    product.quantity = quantity
+    addToCart(product)
   }
 
   return (
+    <Layout title='Cart'>
     <Row>
       <Col md={8}>
         <h1>Shopping Cart</h1>
@@ -30,10 +40,10 @@ export default function CartPage() {
                     ${(product.price / 100).toFixed(2)}
                   </Col>
                   <Col md={2}>
-                    <Form.Control as='select' value={product.quantity} onChange={selectQuantity}>
+                    <Form.Control as='select' value={product.quantity} onChange={ e => selectQuantityHandler(e.target.value, product) }>
                     {
                       [...Array(product.stock).keys()].map(x => (
-                        <option key={x + 1} value={x + 1}>{x + 1}</option>
+                        <option key={`${product._id}-${x}`} value={x + 1}>{x + 1}</option>
                       ))
                     }
                     </Form.Control>
@@ -51,13 +61,13 @@ export default function CartPage() {
         <Card>
 				  <ListGroup>
 					  <ListGroup.Item>
-						  <h2>Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)}) items</h2>
-							${cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2)}
+						  <h2>Subtotal ({cart.reduce((acc, item) => acc + Number(item.quantity), 0)}) items</h2>
+							${cart.reduce((acc, item) => acc + item.quantity * item.price / 100, 0).toFixed(2)}
 						</ListGroup.Item>
 						<ListGroup.Item>
 						  <Button type='button' 
 								className='btn-block' 
-								disabled={cartItems.length === 0} 
+								disabled={cart.length === 0} 
 								onClick={checkoutHandler}>
 										Proceed to Checkout
 								</Button>
@@ -66,7 +76,6 @@ export default function CartPage() {
         </Card>
       </Col>
     </Row>
+    </Layout>
   )
 }
-
-export default CartScreen
