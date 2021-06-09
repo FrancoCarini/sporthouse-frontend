@@ -5,10 +5,11 @@ import { CartContext } from '@/context/CartContext'
 import Message from '../../components/Message'
 import { useRouter } from 'next/router'
 import { Row, Col, ListGroup, Image, Form, Button, Card, ListGroupItem } from 'react-bootstrap'
+import { FaTrash } from 'react-icons/fa'
 
 
 export default function CartPage() {
-  const { cart, addToCart } = useContext(CartContext)
+  const { cart, addToCart, removeFromCart } = useContext(CartContext)
   const router = useRouter()
   
   const checkoutHandler = () => {
@@ -18,6 +19,10 @@ export default function CartPage() {
   const selectQuantityHandler = (quantity, product) => {
     product.quantity = quantity
     addToCart(product)
+  }
+
+  const removeFromCartHandler = (product) => {
+    removeFromCart(product)
   }
 
   return (
@@ -49,7 +54,7 @@ export default function CartPage() {
                     </Form.Control>
                   </Col>
                   <Col md={2}>
-                    <Button type='button' variant='light' onClick={() => removeFromCartHandler(item.product)}><i className='fas fa-trash'></i></Button>
+                    <Button type='button' variant='light' onClick={() => removeFromCartHandler(product)}><FaTrash /></Button>
                   </Col>
                 </Row>
               </ListGroupItem>

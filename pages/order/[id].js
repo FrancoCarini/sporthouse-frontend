@@ -1,10 +1,13 @@
-import {API_URL} from '@/config/index'
-import {parseCookies} from '@/helpers/index'
+import axios from 'axios'
 import Link from 'next/link'
 import { Col, Row, ListGroup, Image, Card, Button } from 'react-bootstrap'
+
+import { API_URL } from '@/config/index'
+import { parseCookies } from '@/helpers/index'
+
 import Message from '@/components/Message'
-import axios from 'axios'
 import Layout from '@/components/Layout'
+import StoreMap from '@/components/StoreMap'
 
 export default function OrderPage({ order }) {
   return (
@@ -14,7 +17,7 @@ export default function OrderPage({ order }) {
           <Col md={8}>
           <ListGroup variant='flush'>
             <ListGroup.Item>
-              {order.status === 'confirmed' ? <Message variant='success'>Confirmed Order</Message> : (
+              {order.status === 'confirmed' ? <Message variant='info'>Confirmed Order</Message> : (
                 <Message variant='danger'>Cancelled Order</Message>
               )}
               <h2>Store</h2>
@@ -22,6 +25,7 @@ export default function OrderPage({ order }) {
                 <strong>Address:</strong>
                 {' '}{order.storeId.address}, {order.storeId.city}
               </p>
+              <StoreMap coordinates={order.storeId.location.coordinates} />
             </ListGroup.Item>
             <ListGroup.Item>
               <h2>Order Items</h2>
@@ -76,7 +80,6 @@ export default function OrderPage({ order }) {
   )
 }
 
-
 export async function getServerSideProps({ req, query }) {
   const { token } = parseCookies(req)
 
@@ -97,7 +100,7 @@ export async function getServerSideProps({ req, query }) {
       }
     }
   )
-  console.log(res.data)
+
   return {
     props: {
       order: res.data.data

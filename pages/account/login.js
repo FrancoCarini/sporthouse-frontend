@@ -14,7 +14,7 @@ export default function LoginPage() {
 
   const {login, error, loading} = useContext(AuthContext)
 
-  const handleSubmit = async e => {
+  const loginHandle = async e => {
     e.preventDefault()
     login({email, password})
   }
@@ -25,7 +25,7 @@ export default function LoginPage() {
         <h1>Sign In</h1>
         {error && <Message variant='danger'>{error}</Message>}
         {loading && <Loader />}
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={loginHandle}>
           <Form.Group controlId='email'>
             <Form.Label>Email Address</Form.Label>
             <Form.Control 

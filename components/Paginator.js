@@ -1,25 +1,18 @@
-import { Pagination } from 'react-bootstrap'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { Button } from 'react-bootstrap'
 
-export default function Paginator({prev, next}) {
+export default function Pagination({ page, prevNext }) {
   return (
     <>
-    <Pagination>
-      <Pagination.First />
-      <Pagination.Prev />
-      <Pagination.Item>{1}</Pagination.Item>
-      <Pagination.Ellipsis />
-    
-      <Pagination.Item>{10}</Pagination.Item>
-      <Pagination.Item>{11}</Pagination.Item>
-      <Pagination.Item active>{12}</Pagination.Item>
-      <Pagination.Item>{13}</Pagination.Item>
-      <Pagination.Item disabled>{14}</Pagination.Item>
-    
-      <Pagination.Ellipsis />
-      <Pagination.Item>{20}</Pagination.Item>
-      <Pagination.Next />
-      <Pagination.Last />
-    </Pagination>
+    <div className="d-flex justify-content-center">
+      <Link href={`/?page=${Number(page) - 1}`} passHref>
+          <Button variant="info" disabled={typeof prevNext.prev !== 'undefined' ? false : true}>Prev</Button>
+      </Link>
+      <Link href={`/?page=${Number(page) + 1}`} passHref>
+          <Button variant="info" disabled={typeof prevNext.next !== 'undefined' ? false : true}>Next</Button>
+      </Link>
+    </div>
     </>
   )
 }

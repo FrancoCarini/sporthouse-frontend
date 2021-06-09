@@ -40,7 +40,7 @@ export default function StorePage({ stores }) {
   )
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps() {
   const response = await axios.get(`${API_URL}/stores`);
   
   return {

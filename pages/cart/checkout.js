@@ -10,7 +10,7 @@ import {parseCookies} from '@/helpers/index'
 import axios from 'axios'
 
 export default function CheckoutPage({ token }) {
-  const { cart, store, setCart, setStore } = useContext(CartContext)
+  const { cart, store, setCart, setStore, emptyCart } = useContext(CartContext)
   const router = useRouter()
   const [error, setError] = useState(false)
 
@@ -37,9 +37,8 @@ export default function CheckoutPage({ token }) {
     )
 
     if (res.status === 201) {
-      setCart([])
-      setStore({})
-      router.push(`/order/${res.data.data._id}`)
+      emptyCart()
+      return router.push(`/order/${res.data.data._id}`)
     }
 
     setError(true)
@@ -123,7 +122,7 @@ export default function CheckoutPage({ token }) {
 export async function getServerSideProps({ req }) {
   const { token } = parseCookies(req)
 
-  if (token === undefined) {
+  if (typeof token === 'undefined') {
     return {
       redirect: {
         permanent: false,
