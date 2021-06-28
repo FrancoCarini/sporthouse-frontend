@@ -8,12 +8,13 @@ export default async (req, res) => {
       return
     }
 
-    const {token} = cookie.parse(req.headers.cookie)
+    const cookies = cookie.parse(req.headers.cookie)
+    const user = JSON.parse(cookies.user)
 
     const backendApiRes = await fetch(`${API_URL}/users/me`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${user.token}`
       }
     })
     

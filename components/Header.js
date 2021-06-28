@@ -76,6 +76,7 @@ export default function Header() {
               </NavDropdown>
               {user ? (
                 <NavDropdown title={user.name} id='username'>
+                  {user.role === 'admin' && <NavDropdown.Item><Link href='/products/new'><a>New Product</a></Link></NavDropdown.Item>}
                   <NavDropdown.Item><Link href='/account/profile'><a>Profile</a></Link></NavDropdown.Item>
                   <NavDropdown.Item><Link href='/order'><a>My Orders</a></Link></NavDropdown.Item>
                   <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>

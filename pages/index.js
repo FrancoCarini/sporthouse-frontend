@@ -1,28 +1,53 @@
+import axios from 'axios'
 import { Row, Col, Form, Button, Accordion, Card } from 'react-bootstrap'
+import { FaFilter } from 'react-icons/fa'
+import { useState, useEffect, Fragment } from 'react'
+
+import { API_URL, PRODUCTS_PER_PAGE } from '@/config/index'
+
 import Product from '@/components/Product'
 import Layout from '@/components/Layout'
 import Paginator from '@/components/Paginator'
 import Loader from '@/components/Loader'
-import { API_URL, PRODUCTS_PER_PAGE } from '@/config/index'
-import { useState, useEffect } from 'react'
-import { FaFilter } from 'react-icons/fa'
-import axios from 'axios'
 
-export default function HomePage({ prods, page, filters }) {
+
+// PASAR URL AL PAGINADORRRRRRRR
+
+export default function HomePage({ products: prods, page, filters: filts }) {
   const [checkedElements, setCheckedElements] = useState([])
   const [loading, setLoading] = useState(false)
   const [products, setProducts] = useState(prods)
   const [apiFilters, setApiFilters] = useState([])
+  const [filters, setFilters] = useState(filts)
 
   useEffect(async () => {
-    let apiUrlStr = ''
-    apiFilters.forEach(filter => {
-      apiUrlStr += `&${filter.name}${filter.value.includes('[') ? '[in]' : ''}=${filter.value}`
-    })
+    if (apiFilters.length) {
+      let apiUrlStr = ''
+      apiFilters.forEach(filter => {
+        apiUrlStr += `&${filter.name.toLowerCase()}${filter.value.includes('[') ? '[in]' : ''}=${filter.value}`
+      })
+      
+      if (apiUrlStr.includes('brand')) {
+        apiUrlStr = apiUrlStr.replace("brand", "brand.name");
+      }
 
-    const response = await axios.get(`${API_URL}/products?&page=${page}&limit=${PRODUCTS_PER_PAGE}${apiUrlStr}`)
-    setProducts(response.data)
-    setLoading(false)
+      if (apiUrlStr.includes('category')) {
+        apiUrlStr = apiUrlStr.replace("category", "category.name");
+      }
+
+      if (apiUrlStr.includes('size')) {
+        apiUrlStr = apiUrlStr.replace("size", "variants.size");
+      }
+
+      const [prodResponse, filterResponse] = await Promise.all([
+        axios.get(`${API_URL}/products?&page=${page}&limit=${PRODUCTS_PER_PAGE}${apiUrlStr}`), 
+        axios.get(`${API_URL}/products/filters?${apiUrlStr}`)
+      ])
+      setProducts(prodResponse.data)
+      setFilters(filterResponse.data.filters)
+
+      setLoading(false)
+    }
   }, [apiFilters])
 
   const handleFilters = async (e, identifier) => {
@@ -60,15 +85,19 @@ export default function HomePage({ prods, page, filters }) {
   const handleResetFilters = async () => {
     setLoading(true)
     setCheckedElements([])
-    // TODO: Hacer query original y traer los resultados originales
 
+    const prods = await axios.get(`${API_URL}/products?page=${page}&limit=${PRODUCTS_PER_PAGE}`)
+    const filts = await axios.get(`${API_URL}/products/filters`)
+
+    setProducts(prods.data)
+    setFilters(filts.data.filters)
     setLoading(false)
   }
 
+  if (loading) return <Layout><Loader /></Layout>
+
   return (
     <Layout>
-    {loading ? <Loader /> : (
-      <>
     <Accordion style={{marginBottom: '20px'}}>
     <Card style={{border: 'none'}}>
       <Card.Header style={{backgroundColor: '#fff'}}>
@@ -79,28 +108,27 @@ export default function HomePage({ prods, page, filters }) {
       <Accordion.Collapse eventKey="0">
         <Card.Body>
         <Form>
-          {filters.map(filter => (
-            <>
-              <h5>{filter.filterCategory}</h5>
-              {
-                <Form.Group key={`${filter.filterCategory}`}>
-                  {filter.checks.map(check => (
-                    <>
-                      <Form.Check 
-                        key={`${filter.filterCategory}-${check.value}`} 
-                        inline 
-                        type="checkbox" 
-                        label={check.label} 
-                        value={check.value} 
-                        checked={ checkedElements.findIndex(el => el === `${filter.filterCategory}-${check.value}`) > -1 ? true : false}
-                        onChange={ e => handleFilters(e, `${filter.filterCategory}-${check.value}`) }
-                      />
-                    </>
-                  ))}
-                </Form.Group>
-              }
-            </>
-          ))}
+          {
+            Object.keys(filters).map( key => (
+              <Fragment key={key}>
+                <h5>{key}</h5>
+                  <Form.Group >
+                    {filters[key].map(check => (
+                      <Fragment key={`${key}-${check}`}>
+                        <Form.Check 
+                          inline 
+                          type="checkbox" 
+                          label={check} 
+                          value={check} 
+                          checked={ checkedElements.findIndex(el => el === `${key}-${check}`) > -1}
+                          onChange={ e => handleFilters(e, `${key}-${check}`) }
+                        />
+                      </Fragment>
+                    ))}
+                  </Form.Group>
+              </Fragment>
+            ))
+          }
           <Button type='button' onClick={handleResetFilters} variant='danger'>Reset Filter</Button>
         </Form>
         </Card.Body>
@@ -117,8 +145,6 @@ export default function HomePage({ prods, page, filters }) {
         ))}
       </Row>
       <Paginator page={page} prevNext={products.pagination} />
-      </>
-      )}
     </Layout>
   )
 }
@@ -128,76 +154,15 @@ export async function getServerSideProps({ query: { page = 1 } }) {
     page = 1
   }
 
-  const res = await fetch(`${API_URL}/products?page=${page}&limit=${PRODUCTS_PER_PAGE}`)
-  const prods = await res.json()
+  const prods = await axios.get(`${API_URL}/products?page=${page}&limit=${PRODUCTS_PER_PAGE}`)
 
-  const filters = [
-    {
-      "filterCategory": "category",
-      "checks": [
-        {
-          "label": "Shoes",
-          "value": "Shoes"
-        },
-        {
-          "label": "T-shirts",
-          "value": "T-shirts"
-        },
-        {
-          "label": "Pants",
-          "value": "Pants"
-        },
-        {
-          "label": "Shorts",
-          "value": "Shorts"
-        }
-      ]
-    },
-    {
-      "filterCategory": "size",
-      "checks": [
-        {
-          "label": "38",
-          "value": "38"
-        },
-        {
-          "label": "39",
-          "value": "39"
-        },
-        {
-          "label": "40",
-          "value": "40"
-        },
-        {
-          "label": "41",
-          "value": "41"
-        }
-      ]
-    },
-    {
-      "filterCategory": "gender",
-      "checks": [
-        {
-          "label": "male",
-          "value": "male"
-        },
-        {
-          "label": "female",
-          "value": "female"
-        },
-        {
-          "label": "unisex",
-          "value": "unisex"
-        }
-      ]
-    }
-  ]
+  const filts = await axios.get(`${API_URL}/products/filters`)
 
   return {
     props: { 
-      prods,
+      products: prods.data,
       page,
-      filters
+      filters: filts.data.filters
     }
   }
 }

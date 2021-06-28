@@ -18,13 +18,16 @@ export default async (req, res) => {
 
     const data = await backendApiRes.json()
 
-    // httpOnly true lo que hace es que solo el server pueda leer esta Cookie. El browser no puede. 
-    // Si vamos al browser y hacemos en la consola document.cookie vamos a ver que no encuentra nada
+    const cookieUser = {
+      token: data.token,
+      role: data.data.user.role
+    }
+
     if (data.success) {
       // Set Cookie
       res.setHeader(
         'Set-Cookie',
-        cookie.serialize('token', data.token, {
+        cookie.serialize('user', JSON.stringify(cookieUser), {
           httpOnly: true,
           secure: process.env.NODE_ENV !== 'development',
           maxAge: 60 * 60 * 24 * 7, // 1 week
