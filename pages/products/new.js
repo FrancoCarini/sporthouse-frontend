@@ -12,15 +12,15 @@ import { parseCookies } from '@/helpers/index'
 export default function NewProductPage({ brands, categories, years, token }) {
   const [productVariants, setProductVariants] = useState([])
   const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
   const [sku, setSku] = useState('')
   const [price, setPrice] = useState('')
   const [gender, setGender] = useState('')
   const [season, setSeason] = useState('')
   const [brand, setBrand] = useState('')
   const [category, setCategory] = useState('')
-  const [validationFail, setValidationFail] = useState(false)
-  const [validationMessage, setValidationMessage] = useState('')
-
+  const [error, setError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleChangeInput = (i, e) => {
     const values = [...productVariants]
@@ -39,18 +39,56 @@ export default function NewProductPage({ brands, categories, years, token }) {
     setProductVariants([...values])
   }
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault()
     const validationRes = validate()
 
     if (validationRes.error) {
-      setValidationFail(true)
-      setValidationMessage(validationRes.message)
+      setError(true)
+      setErrorMessage(validationRes.message)
       setTimeout(() => {
-        setValidationFail(false)
+        setError(false)
       }, 3000)
+      return
     }
+    
+    const res = await axios.post(`${API_URL}/products`, 
+      {
+        name,
+        description,
+        brandId: brand,
+        categoryId: category,
+        sku,
+        season,
+        priceCents: price,
+        gender,
+        variants: productVariants
+      },
+      { 
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    if (res.status === 201) {
+      setError(true)
+      setErrorMessage('Insert OK!')
+      setTimeout(() => {
+        setError(false)
+      }, 3000)
+      return
+    }
+    
+    setError(true)
+    setErrorMessage('Error Inserting!')
+    setTimeout(() => {
+      setError(false)
+    }, 3000)
+
   }
+
 
   const validate = () => {
     const validationRes = {error: false, message: ''}
@@ -80,7 +118,7 @@ export default function NewProductPage({ brands, categories, years, token }) {
 
   return (
     <Layout>
-        {validationFail && <Message variant='danger'>{validationMessage}</Message>}
+        {error && <Message variant='danger'>{errorMessage}</Message>}
         <h1>New Product</h1>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId='name'>
@@ -91,6 +129,15 @@ export default function NewProductPage({ brands, categories, years, token }) {
               onChange={e => setName(e.target.value)}
             >
             </Form.Control>
+          </Form.Group>
+          <Form.Group controlId="description">
+            <Form.Label>Description</Form.Label>
+            <Form.Control 
+              as="textarea" 
+              rows={3}
+              placeholder='Enter Product Description'
+              onChange={e => setDescription(e.target.value)}
+            />
           </Form.Group>
           <Form.Group controlId='price'>
             <Form.Label>Price</Form.Label>
@@ -110,15 +157,15 @@ export default function NewProductPage({ brands, categories, years, token }) {
             >
             </Form.Control>
           </Form.Group>
-          <Form.Group controlId='gender'>
+          <Form.Group>
             <Form.Label>Gender</Form.Label>
               <div className="mb-3">
-                <Form.Check checked inline label="Male" name="gender" type="radio"  onChange={() => setGender('male')}/>
-                <Form.Check inline label="Female" name="gender" type="radio"  onChange={() => setGender('female')} />
-                <Form.Check inline label="Unisex" name="gender" type="radio"  onChange={() => setGender('unisex')} />
+                <Form.Check key="male" checked inline label="Male" name="gender" type="radio"  onChange={() => setGender('male')}/>
+                <Form.Check key="female" inline label="Female" name="gender" type="radio"  onChange={() => setGender('female')} />
+                <Form.Check key="unisex" inline label="Unisex" name="gender" type="radio"  onChange={() => setGender('unisex')} />
               </div>
             </Form.Group>
-          <Form.Group controlId="season">
+          <Form.Group>
             <Form.Label>Season</Form.Label>
             <Form.Control as='select' defaultValue={Number(new Date().getFullYear())} onChange={e => setSeason(e.target.value)}>
               {
@@ -225,7 +272,7 @@ export async function getServerSideProps({ req }) {
     }
   }
 
-  if (typeof user.role !== 'admin') {
+  if (user.role !== 'admin') {
     return {
       redirect: {
         permanent: false,
