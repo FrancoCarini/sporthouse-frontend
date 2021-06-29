@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid';
-import { useState, Fragment } from 'react'
+import { useState, Fragment, useEffect } from 'react'
 import { Row, Col, Button, Form } from 'react-bootstrap'
+import { useRouter } from 'next/router'
 
 import { API_URL } from '@/config/index'
 
@@ -10,6 +11,8 @@ import Message from '@/components/Message'
 import { parseCookies } from '@/helpers/index'
 
 export default function NewProductPage({ brands, categories, years, token }) {
+  const router = useRouter()
+
   const [productVariants, setProductVariants] = useState([])
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -19,8 +22,18 @@ export default function NewProductPage({ brands, categories, years, token }) {
   const [season, setSeason] = useState('')
   const [brand, setBrand] = useState('')
   const [category, setCategory] = useState('')
-  const [error, setError] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
+  const [message, setMessage] = useState(false)
+  const [messageType, setMessageType] = useState('')
+  const [messageText, setMessageText] = useState('')
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (messageType === 'success') {
+        router.push('/products/list')
+      }
+    }, 2000)
+  }, [messageType])
+
 
   const handleChangeInput = (i, e) => {
     const values = [...productVariants]
@@ -44,10 +57,11 @@ export default function NewProductPage({ brands, categories, years, token }) {
     const validationRes = validate()
 
     if (validationRes.error) {
-      setError(true)
-      setErrorMessage(validationRes.message)
+      setMessage(true)
+      setMessageText(validationRes.message)
+      setMessageType('danger')
       setTimeout(() => {
-        setError(false)
+        setMessage(false)
       }, 3000)
       return
     }
@@ -73,20 +87,21 @@ export default function NewProductPage({ brands, categories, years, token }) {
     )
 
     if (res.status === 201) {
-      setError(true)
-      setErrorMessage('Insert OK!')
+      setMessage(true)
+      setMessageText('Product Created! Redirecting to product list')
+      setMessageType('success')
       setTimeout(() => {
-        setError(false)
+        setMessage(false)
       }, 3000)
       return
     }
     
-    setError(true)
-    setErrorMessage('Error Inserting!')
+    setMessage(true)
+    setMessageText('Error creating Product. Please try again.')
+    setMessageType('danger')
     setTimeout(() => {
-      setError(false)
+      setMessage(false)
     }, 3000)
-
   }
 
 
@@ -118,7 +133,7 @@ export default function NewProductPage({ brands, categories, years, token }) {
 
   return (
     <Layout>
-        {error && <Message variant='danger'>{errorMessage}</Message>}
+        {message && <Message variant={messageType}>{messageText}</Message>}
         <h1>New Product</h1>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId='name'>
