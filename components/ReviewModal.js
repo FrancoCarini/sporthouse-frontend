@@ -43,8 +43,7 @@ const ReviewModal = ({ show, onClose, product }) => {
                 <Card.Body>
                   {rating.review}
                   <Rating 
-                    value={product.ratingsAverage || 0} 
-                    text={`${product.ratingsQuantity} reviews`} 
+                    value={rating.rating} 
                     color='red'
                     product={product}
                   />

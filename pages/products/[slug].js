@@ -107,7 +107,8 @@ export default function SingleProductPage({ product }) {
             <Rating
               value={product.ratingsAverage || 0} 
               text={`${product.ratingsQuantity} reviews`} 
-              color='red' 
+              color='red'
+              product={product}
             />
             </ListGroup.Item>
             <ListGroup.Item>
