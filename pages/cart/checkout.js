@@ -120,9 +120,10 @@ export default function CheckoutPage({ token }) {
 }
 
 export async function getServerSideProps({ req }) {
-  const { token } = parseCookies(req)
+  const cookies = parseCookies(req)
+  const user = JSON.parse(cookies.user)
 
-  if (typeof token === 'undefined') {
+  if (typeof user.token === 'undefined') {
     return {
       redirect: {
         permanent: false,
@@ -133,7 +134,7 @@ export async function getServerSideProps({ req }) {
 
   return {
     props: {
-      token
+      token: user.token
     }
   }
 }

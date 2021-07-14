@@ -154,9 +154,10 @@ export async function getServerSideProps({ query: { page = 1 } }) {
     page = 1
   }
 
-  const prods = await axios.get(`${API_URL}/products?page=${page}&limit=${PRODUCTS_PER_PAGE}`)
-
-  const filts = await axios.get(`${API_URL}/products/filters`)
+  const [prods, filts] = await Promise.all([
+    axios.get(`${API_URL}/products?page=${page}&limit=${PRODUCTS_PER_PAGE}`), 
+    axios.get(`${API_URL}/products/filters`)
+  ])
 
   return {
     props: { 

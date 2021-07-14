@@ -18,7 +18,8 @@ export default function Product({ product }) {
           <Rating 
             value={product.ratingsAverage || 0} 
             text={`${product.ratingsQuantity} reviews`} 
-            color='red'  
+            color='red'
+            product={product}
           />
         </Card.Text>
         <Card.Text as='h3'>${(product.priceCents/100).toFixed(2)}</Card.Text>

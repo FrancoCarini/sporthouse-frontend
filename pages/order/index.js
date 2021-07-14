@@ -93,9 +93,10 @@ export default function OrderListPage ({ orders, token }) {
 }
 
 export async function getServerSideProps({ req }) {
-  const { token } = parseCookies(req)
+  const cookies = parseCookies(req)
+  const user = JSON.parse(cookies.user)
 
-  if (typeof token === 'undefined') {
+  if (typeof user.token === 'undefined') {
     return {
       redirect: {
         permanent: false,
@@ -107,7 +108,7 @@ export async function getServerSideProps({ req }) {
   const res = await axios.get(`${API_URL}/users/me`, 
     { 
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${user.token}`
       }
     }
   )
@@ -115,7 +116,7 @@ export async function getServerSideProps({ req }) {
   return {
     props: {
       orders: res.data.orders,
-      token
+      token: user.token
     }
   }
 }
