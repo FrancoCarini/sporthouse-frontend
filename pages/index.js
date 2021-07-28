@@ -9,11 +9,12 @@ import Product from '@/components/Product'
 import Layout from '@/components/Layout'
 import Paginator from '@/components/Paginator'
 import Loader from '@/components/Loader'
+import { useRouter } from 'next/router'
 
-
-// PASAR URL AL PAGINADORRRRRRRR
 
 export default function HomePage({ products: prods, page, filters: filts }) {
+  const router = useRouter()
+
   const [checkedElements, setCheckedElements] = useState([])
   const [loading, setLoading] = useState(false)
   const [products, setProducts] = useState(prods)
@@ -21,7 +22,6 @@ export default function HomePage({ products: prods, page, filters: filts }) {
   const [filters, setFilters] = useState(filts)
 
   useEffect(async () => {
-    if (apiFilters.length) {
       let apiUrlStr = ''
       apiFilters.forEach(filter => {
         apiUrlStr += `&${filter.name.toLowerCase()}${filter.value.includes('[') ? '[in]' : ''}=${filter.value}`
@@ -40,15 +40,14 @@ export default function HomePage({ products: prods, page, filters: filts }) {
       }
 
       const [prodResponse, filterResponse] = await Promise.all([
-        axios.get(`${API_URL}/products?&page=${page}&limit=${PRODUCTS_PER_PAGE}${apiUrlStr}`), 
+        axios.get(`${API_URL}/products?&page=${router.query.page}&limit=${PRODUCTS_PER_PAGE}${apiUrlStr}`), 
         axios.get(`${API_URL}/products/filters?${apiUrlStr}`)
       ])
       setProducts(prodResponse.data)
       setFilters(filterResponse.data.filters)
 
       setLoading(false)
-    }
-  }, [apiFilters])
+  }, [apiFilters, router.query.page])
 
   const handleFilters = async (e, identifier) => {
     setLoading(true)
@@ -144,7 +143,7 @@ export default function HomePage({ products: prods, page, filters: filts }) {
           </Col>
         ))}
       </Row>
-      <Paginator page={page} prevNext={products.pagination} />
+      <Paginator page={page} prevNext={products.pagination} onChangePage={page => {router.push(`/?page=${page}`)}} />
     </Layout>
   )
 }

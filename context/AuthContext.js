@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { NEXT_URL } from '@/config/index'
+import axios from 'axios'
 
 const AuthContext = createContext()
 
@@ -16,23 +17,33 @@ export const AuthProvider = ({children}) => {
   }, [])
 
   // Register User
-  const register = async (user) => {
-    const res = await fetch(`${NEXT_URL}/api/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(user)
-    })
-    
-    const data = await res.json()
+  const register = async (name, email, password, passwordConfirm) => {
+    setLoading(true)
 
-    if (res.success) {
-      setUser(data.user) 
+    try {
+      const res = await axios.post(`${NEXT_URL}/api/register`,
+        {
+          name,
+          email,
+          password,
+          passwordConfirm
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      
+      setLoading(false)
+      setUser(res.data.user) 
       router.push('/')
-    } else {
-      setError(data.message)
-      setError(null)
+    } catch (err) {
+      setError(err.response.data.message)
+      setLoading(false)
+      setTimeout(() => {
+        setError(null)
+      }, 5000)
     }
   }
 

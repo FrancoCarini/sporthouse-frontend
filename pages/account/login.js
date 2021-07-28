@@ -1,12 +1,12 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useContext } from 'react'
 import Link from 'next/link'
 import { Row, Col, Button, Form } from 'react-bootstrap'
+
 import FormContainer from '@/components/FormContainer'
 import Layout from '@/components/Layout'
 import AuthContext from '@/context/AuthContext'
 import Message from '@/components/Message'
 import Loader from '@/components/Loader'
-
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')

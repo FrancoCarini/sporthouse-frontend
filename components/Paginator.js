@@ -1,18 +1,13 @@
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from 'react-bootstrap'
 
-export default function Pagination({ page, prevNext }) {
+export default function Pagination({ page, prevNext, onChangePage }) {
   return (
     <>
-    <div className="d-flex justify-content-center">
-      <Link href={`/?page=${Number(page) - 1}`} passHref>
-          <Button variant="info" disabled={typeof prevNext.prev !== 'undefined' ? false : true}>Prev</Button>
-      </Link>
-      <Link href={`/?page=${Number(page) + 1}`} passHref>
-          <Button variant="info" disabled={typeof prevNext.next !== 'undefined' ? false : true}>Next</Button>
-      </Link>
-    </div>
+      <div className="d-flex justify-content-center">
+        <Button onClick={() => {onChangePage(Number(page) - 1)}} variant="info" disabled={typeof prevNext.prev !== 'undefined' ? false : true}>Prev</Button>
+        <Button onClick={() => {onChangePage(Number(page) + 1)}} variant="info" disabled={typeof prevNext.next !== 'undefined' ? false : true}>Next</Button>
+      </div>
     </>
   )
 }

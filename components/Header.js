@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Container, Nav, Navbar, NavDropdown, Button, FormControl, InputGroup, Col } from 'react-bootstrap'
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'
 import { FaShoppingCart, FaUser } from 'react-icons/fa'
-import { useContext, useState } from 'react'
+import { useContext, useState, Fragment } from 'react'
 import axios from 'axios'
 
 import { API_URL } from '@/config/index'
@@ -42,7 +42,7 @@ export default function Header() {
               options={products}
               isLoading={loading}
               renderMenuItemChildren={(option, props) => (
-                <>
+                <Fragment>
                   <img
                     alt={option.name}
                     src={option.image}
@@ -54,7 +54,7 @@ export default function Header() {
                   />
 
                   <Link href={`/products/${option.slug}`}><a>{option.brand.name} - {option.name}</a></Link>
-                </>
+                </Fragment>
               )}
             />
           </Col>
@@ -62,7 +62,7 @@ export default function Header() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ml-auto">
-              <NavDropdown title={<><FaShoppingCart /> Cart</>} id='cart'>
+              <NavDropdown title={<Fragment><FaShoppingCart /> Cart</Fragment>} id='cart'>
               Your cart has {cart.length > 0 ?  cart.length  : 'no' } items
                 {cart.length > 0 && 
                   <NavDropdown.Item>
@@ -76,10 +76,18 @@ export default function Header() {
               </NavDropdown>
               {user ? (
                 <NavDropdown title={user.name} id='username'>
-                  {user.role === 'admin' && <NavDropdown.Item><Link href='/products/new'><a>New Product</a></Link></NavDropdown.Item>}
-                  <NavDropdown.Item><Link href='/account/profile'><a>Profile</a></Link></NavDropdown.Item>
-                  <NavDropdown.Item><Link href='/order'><a>My Orders</a></Link></NavDropdown.Item>
-                  <NavDropdown.Item><Link href='/products/rating'><a>Rate Products</a></Link></NavDropdown.Item>
+                  {user.role === 'admin' ? (
+                    <Fragment>
+                      <NavDropdown.Item><Link href='/products/admin/new'><a>New Product</a></Link></NavDropdown.Item>
+                      <NavDropdown.Item><Link href='/products/admin/new'><a>List Products</a></Link></NavDropdown.Item>
+                    </Fragment>
+                  ) : (
+                    <Fragment>
+                      <NavDropdown.Item><Link href='/account/profile'><a>Profile</a></Link></NavDropdown.Item>
+                      <NavDropdown.Item><Link href='/order'><a>My Orders</a></Link></NavDropdown.Item>
+                      <NavDropdown.Item><Link href='/products/rating'><a>Rate Products</a></Link></NavDropdown.Item>
+                    </Fragment>
+                  )}
                   <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>
                 </NavDropdown>
               ) : ( 
